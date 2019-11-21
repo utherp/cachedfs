@@ -1,0 +1,25 @@
+CC			= /usr/bin/gcc
+
+DEPENDS= -lfuse
+
+KERNVER	   :=  $(shell $(CC) -dumpmachine)
+CFLAGS		= -pthread -mmmx -msse -msse2 -msse3
+CFLAGS	   += -Wall -Wno-format -D_FILE_OFFSET_BITS=64
+CFLAGS	   += $(if $(findstring x86_64,$(KERNVER)), -D__64bit__, -D__32bit__)
+CFLAGS	   += -D_SHOW_WARNINGS_ -D_SHOW_ERRORS_
+DEBUG_FLAGS = -D_DEBUGGING_ -D_DEBUG_FLOW_ -D_DEBUG_MORE_FLOW_ -D_DEBUG_VERBOSE_
+TARGET_BASE	= /usr/local
+
+BTYPE_FILE	= .buildname
+ACTNAME		=
+
+fakeact	:	all
+
+CHKBLD	:
+	[ ! -e $(BTYPE_FILE) ] || [ "x`cat $(BTYPE_FILE)`" == "x$(ACTNAME)" ] && true || $(MAKE) clean;
+
+.c.o: $($<:.c=.h)
+	$(CC) $(CFLAGS) -c $<
+
+OBJS	=	$(SRCS:.c=.o)
+
